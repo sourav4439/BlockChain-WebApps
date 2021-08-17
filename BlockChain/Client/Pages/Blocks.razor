@@ -1,0 +1,52 @@
+﻿@page "/blocks"
+
+<!-- TODO: Add using and inject statements -->
+
+<h3>Blocks</h3>
+<button @onclick="MineBlock" >Mine Block</button>
+@if (blocklist == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<div class="card-columns">
+
+  
+    @foreach (var item in blocklist)
+    {
+        <div class="card" style="width: 18rem;">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Index :@item.Index</li>
+                <li class="list-group-item">Hash :@item.Hash</li>
+                <li class="list-group-item">Nounce :@item.Nounce</li>
+                <li class="list-group-item">PreviousBlock :@item.PreviousBlock</li>
+
+            </ul>
+        </div>
+    }
+
+</div>
+}
+
+@code {
+    IEnumerable<BlockSummary> blocklist;
+    [Inject]
+    public BlockService bService { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBlock();
+    }
+    async Task MineBlock()
+    {
+        var block= await bService.MineBlock();
+        await bService.SummitNewBlockAsync(block);
+        await LoadBlock();
+
+    }
+    async Task LoadBlock()
+    {
+        blocklist = await bService.GetBlocks();
+    }
+}
